@@ -1,5 +1,5 @@
 === HQ Core ===
-Contributors:      10up
+Contributors:      Tanner Moushey
 Donate link:       http://wordpress.org/extend/plugins
 Tags: 
 Requires at least: 3.5.1
