@@ -1,0 +1,23 @@
+{
+  "name": "hq-core",
+  "title": "HQ Core",
+  "description": "Core functionality for HQ",
+  "version": "0.1.0",
+  "homepage": "http://wordpress.org/extend/plugins",
+  "author": {
+    "name": "Tanner Moushey",
+    "email": "tanner@iwitnessdesign.com",
+    "url": "http://tannermoushey.com"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-concat": "~0.1.2",
+    "grunt-contrib-uglify": "~0.1.1",
+    "grunt-contrib-cssmin": "~0.6.0",
+    "grunt-contrib-jshint": "~0.1.1",
+    "grunt-contrib-nodeunit": "~0.1.2",
+    "grunt-contrib-watch": "~0.2.0",
+    "grunt-contrib-sass": "~0.2.2"
+  },
+  "keywords": []
+}
