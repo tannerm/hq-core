@@ -31,9 +31,9 @@ class HQ_BP {
 		add_filter( 'bp_get_groups_current_create_step', array( $this, 'current_group_create_step' )     );
 
 		// using a weird action to hook in after group_steps are specified
-		add_action( 'groups_valid_status',                        array( $this, 'group_create_steps' ) );
+		add_filter( 'groups_valid_status',                        array( $this, 'group_create_steps' ) );
 		add_action( 'wp_head',                                    array( $this, 'remove_filters'     ) );
-		add_action( 'groups_create_group_step_save_group-create', array( $this, 'group_create'       ) );
+		add_action( 'groups_create_group_step_save_group-create', array( $this, 'create_project'     ) );
 	}
 
 	/**
@@ -92,7 +92,15 @@ class HQ_BP {
 		return 'group-create';
 	}
 
-	public function group_create_steps() {
+	/**
+	 * Using the groups_valid_status filter to update the creation steps so that
+	 * we can make sure there is only one step.
+	 *
+	 * @param $steps
+	 *
+	 * @return mixed
+	 */
+	public function group_create_steps( $steps ) {
 		global $bp;
 
 		$bp->groups->group_creation_steps = array(
@@ -102,31 +110,42 @@ class HQ_BP {
 			)
 		);
 
+		return $steps;
+
 	}
 
-	public function group_create() {
+	/**
+	 * Create project
+	 */
+	public function create_project() {
 		global $bp;
 
+		// Make sure we have the write info
 		if ( empty( $_POST['group-name'] ) || empty( $_POST['group-desc'] ) || !strlen( trim( $_POST['group-name'] ) ) || !strlen( trim( $_POST['group-desc'] ) ) ) {
 			bp_core_add_message( __( 'Please fill in all of the required fields', 'buddypress' ), 'error' );
 			bp_core_redirect( bp_get_root_domain() . '/' . bp_get_groups_root_slug() . '/create/' );
 		}
 
-		$new_group_id = isset( $bp->groups->new_group_id ) ? $bp->groups->new_group_id : 0;
-
 		$args = array(
-			'group_id'     => $new_group_id,
 			'name'         => $_POST['group-name'],
 			'description'  => $_POST['group-desc'],
 			'slug'         => groups_check_slug( sanitize_title( esc_attr( $_POST['group-name'] ) ) ),
 			'date_created' => bp_core_current_time(),
-			'status'       => 'public'
+			'status'       => $_POST['group-status'],
 		);
 
-		if ( !$bp->groups->new_group_id = groups_create_group( $args ) ) {
+		// Create the new project
+		if ( !$bp->groups->new_group_id = groups_create_group( apply_filters( 'hq_create_project', $args ) ) ) {
 			bp_core_add_message( __( 'There was an error saving group details, please try again.', 'buddypress' ), 'error' );
 			bp_core_redirect( bp_get_root_domain() . '/' . bp_get_groups_root_slug() . '/create/step/' . bp_get_groups_current_create_step() . '/' );
 		}
 
+		$bp->groups->current_group = groups_get_group( array( 'group_id' => $bp->groups->new_group_id ) );
+
+		// reset cookies
+		setcookie( 'bp_new_group_id', false, time() - 1000, COOKIEPATH );
+		setcookie( 'bp_completed_create_steps', false, time() - 1000, COOKIEPATH );
+
 	}
+
 }

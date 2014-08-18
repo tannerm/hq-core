@@ -73,8 +73,15 @@ function hq_deactivate() {
 }
 register_deactivation_hook( __FILE__, 'hq_deactivate' );
 
-// Wireup actions
-add_action( 'init', 'hq_init' );
+function hq_enqueue() {
+	$postfix = ( defined( 'SCRIPT_DEBUG' ) && true === SCRIPT_DEBUG ) ? '' : '.min';
+
+	wp_enqueue_script( 'hq-selectize', HQ_URL . "assets/js/vendor/selectize.min.js" );
+
+	wp_enqueue_script( 'hq-core-style', HQ_URL . "assets/js/hq_core{$postfix}.js" );
+	wp_enqueue_style( 'hq-core-js', HQ_URL . "assets/css/hq_core{$postfix}.css" );
+}
+add_action( 'wp_enqueue_scripts', 'hq_enqueue' );
 
 // Wireup filters
 

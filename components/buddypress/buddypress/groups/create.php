@@ -18,10 +18,43 @@
 				<input type="text" name="group-desc" id="group-desc" placeholder="Enter a description of the project here" />
 			</div>
 
-			<?php
-			do_action( 'bp_after_group_details_creation_step' );
-			do_action( 'groups_custom_group_fields_editable' ); // @Deprecated
+			<div class="group-members">
+				<?php
+				$members = array();
+				$args = apply_filters( 'hq_user_pick_args', array(
+					'exclude' => array( get_current_user_id() ),
+				) );
 
+				foreach( get_users( $args ) as $user ) {
+					$members[$user->user_email] = ( $user->first_name ) ? $user->first_name . ' ' . $user->last_name : $user->display_name;
+				}
+
+				$team   = apply_filters( 'hq_team_list',   (array)$members );
+				$client = apply_filters( 'hq_client_list', (array)$members );
+				?>
+
+				<div class="group-team-cont">
+					<select id="team" class="selectize-email" name="group-team" multiple="multiple">
+						<option>-- select team members --</option>
+						<?php foreach ( $team as $email => $name ) : ?>
+							<option value="<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $name ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+
+				<div class="group-client-cont">
+					<label for="group-client">Client</label>
+					<select id="group-client" class="selectize-email" name="group-client" multiple="multiple">
+						<option>-- select client --</option>
+						<?php foreach ( $client as $email => $name ) : ?>
+							<option value="<?php echo esc_attr( $email ); ?>"><?php echo esc_html( $name ); ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+
+			</div>
+
+			<?php
 			wp_nonce_field( 'groups_create_save_group-details' ); ?>
 
 			<h4><?php _e( 'Privacy Options', 'buddypress' ); ?></h4>
